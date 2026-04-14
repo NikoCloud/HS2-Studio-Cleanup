@@ -9,7 +9,6 @@ __pycache__/
 # Distribution / packaging
 build/
 dist/
-!dist/HS2_Studio_Cleanup.exe
 localpycs/
 *.egg-info/
 .installed.cfg
@@ -19,7 +18,6 @@ MANIFEST
 # PyInstaller
 #  Usually these files are written by a python script, and contain the binery data
 *.manifest
-*.spec
 
 # Installer logs
 pip-log.txt

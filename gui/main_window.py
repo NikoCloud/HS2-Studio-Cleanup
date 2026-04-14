@@ -6,7 +6,10 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 import time
+import urllib.request
+import webbrowser
 from pathlib import Path
 from typing import Optional
 
@@ -30,6 +33,36 @@ from core.org_engine import get_zipmod_destination, get_chara_destination, get_s
 
 _FOLDER_MODE_OPTIONS = ["move", "report", "inbox"]
 _MODE_ICONS = {"move": "✅", "report": "🔒", "inbox": "📥"}
+
+APP_VERSION  = "1.0.0"
+RELEASES_URL = "https://github.com/NikoCloud/HS2-Studio-Cleanup/releases/latest"
+RELEASES_API = "https://api.github.com/repos/NikoCloud/HS2-Studio-Cleanup/releases/latest"
+_UPDATE_SETTINGS_FILE = Path(os.environ.get("APPDATA", "~")) / "HS2StudioCleanup" / "update_settings.json"
+
+
+def _load_update_settings() -> dict:
+    try:
+        if _UPDATE_SETTINGS_FILE.exists():
+            return json.loads(_UPDATE_SETTINGS_FILE.read_text("utf-8"))
+    except Exception:
+        pass
+    return {"check_updates": True}
+
+
+def _save_update_settings(data: dict) -> None:
+    try:
+        _UPDATE_SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        _UPDATE_SETTINGS_FILE.write_text(json.dumps(data, indent=2), "utf-8")
+    except Exception:
+        pass
+
+
+def _version_tuple(v: str):
+    try:
+        return tuple(int(x) for x in v.lstrip("v").split("."))
+    except ValueError:
+        return (0,)
+
 
 # Hardcoded list removed — folders are now loaded dynamically from HS2 root.
 
@@ -64,7 +97,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         settings.load()
-        self.setWindowTitle("HS2 Studio Cleanup v0.01b1")
+        self.setWindowTitle(f"HS2 Studio Cleanup v{APP_VERSION}")
         self.setMinimumSize(1100, 760)
 
         # Restore geometry
@@ -80,8 +113,11 @@ class MainWindow(QMainWindow):
         self._total_files_found: int = 0
         self._last_misplaced_count: int = 0
 
+        self._update_settings = _load_update_settings()
         self._build_ui()
         self._apply_saved_settings()
+        if self._update_settings.get("check_updates", True):
+            QTimer.singleShot(1000, self._start_update_check)
 
     # ── UI construction ───────────────────────────────────────────────────
 
@@ -161,6 +197,7 @@ class MainWindow(QMainWindow):
 
         # Action bar (bottom)
         root_layout.addWidget(self._make_action_bar())
+        root_layout.addWidget(self._make_update_bar())
         # Post-scan banner (hidden by default)
         self._banner = self._make_post_scan_banner()
         self._banner.hide()
@@ -172,7 +209,7 @@ class MainWindow(QMainWindow):
         w.setFixedHeight(64)
         layout = QHBoxLayout(w)
         layout.setContentsMargins(16, 8, 16, 8)
-        title = QLabel("HS2 Studio Cleanup v0.01b1")
+        title = QLabel(f"HS2 Studio Cleanup v{APP_VERSION}")
         title.setObjectName("appTitle")
         sub = QLabel("Deduplicator & Organiser")
         sub.setObjectName("appSubtitle")
@@ -656,6 +693,98 @@ class MainWindow(QMainWindow):
                 "💡 Tip: Duplicates found involving the Sideloader Modpack. "
                 "Re-scan after modpack updates to catch new overlaps."
             )
+
+    # ── Update checker ────────────────────────────────────────────────────
+
+    def _make_update_bar(self) -> QWidget:
+        w = QWidget()
+        w.setObjectName("updateBar")
+        w.setStyleSheet("QWidget#updateBar { background-color: #0d0d1a; border-top: 1px solid #1e1e3a; }")
+        hl = QHBoxLayout(w)
+        hl.setContentsMargins(12, 4, 12, 4)
+        hl.setSpacing(8)
+
+        ver_lbl = QLabel(f"v{APP_VERSION}")
+        ver_lbl.setStyleSheet("color: #555577; font-size: 10px;")
+        hl.addWidget(ver_lbl)
+
+        sep1 = QLabel("│")
+        sep1.setStyleSheet("color: #2a2a4a; font-size: 10px;")
+        hl.addWidget(sep1)
+
+        self._update_chk = QCheckBox("Check for updates")
+        self._update_chk.setChecked(self._update_settings.get("check_updates", True))
+        self._update_chk.setStyleSheet("font-size: 10px;")
+        self._update_chk.toggled.connect(self._on_update_toggle)
+        hl.addWidget(self._update_chk)
+
+        sep2 = QLabel("│")
+        sep2.setStyleSheet("color: #2a2a4a; font-size: 10px;")
+        hl.addWidget(sep2)
+
+        self._update_lbl = QLabel("")
+        self._update_lbl.setStyleSheet("color: #555577; font-size: 10px;")
+        hl.addWidget(self._update_lbl)
+
+        self._update_dl_btn = QPushButton("⬇ Download Update")
+        self._update_dl_btn.setStyleSheet("font-size: 10px; padding: 2px 8px;")
+        self._update_dl_btn.clicked.connect(lambda: webbrowser.open(RELEASES_URL))
+        self._update_dl_btn.hide()
+        hl.addWidget(self._update_dl_btn)
+
+        hl.addStretch()
+        return w
+
+    def _set_update_status(self, state: str, version: str = "") -> None:
+        colors = {
+            "checking":  "#888888",
+            "uptodate":  "#2ecc71",
+            "available": "#e94560",
+            "offline":   "#888888",
+            "disabled":  "#555577",
+        }
+        labels = {
+            "checking":  "Checking for updates…",
+            "uptodate":  "Up to date",
+            "available": f"Update available: {version}",
+            "offline":   "No connection",
+            "disabled":  "Updates disabled",
+        }
+        self._update_lbl.setStyleSheet(f"color: {colors.get(state, '#888888')}; font-size: 10px;")
+        self._update_lbl.setText(labels.get(state, ""))
+        if state == "available":
+            self._update_dl_btn.show()
+        else:
+            self._update_dl_btn.hide()
+
+    def _start_update_check(self) -> None:
+        self._set_update_status("checking")
+
+        def _fetch():
+            try:
+                req = urllib.request.Request(
+                    RELEASES_API,
+                    headers={"Accept": "application/vnd.github+json",
+                             "User-Agent": "HS2StudioCleanup-update-check"},
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    tag = json.loads(resp.read().decode("utf-8")).get("tag_name", "")
+                if _version_tuple(tag) > _version_tuple(APP_VERSION):
+                    QTimer.singleShot(0, lambda: self._set_update_status("available", tag))
+                else:
+                    QTimer.singleShot(0, lambda: self._set_update_status("uptodate"))
+            except Exception:
+                QTimer.singleShot(0, lambda: self._set_update_status("offline"))
+
+        threading.Thread(target=_fetch, daemon=True).start()
+
+    def _on_update_toggle(self, checked: bool) -> None:
+        self._update_settings["check_updates"] = checked
+        _save_update_settings(self._update_settings)
+        if checked:
+            self._start_update_check()
+        else:
+            self._set_update_status("disabled")
 
     # ── Window close ─────────────────────────────────────────────────────
 

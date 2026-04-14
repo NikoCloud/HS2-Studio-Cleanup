@@ -1,75 +1,94 @@
-# HS2 Studio Cleanup
+<p align="center">
+  <img src="docs/screenshots/banner.png" alt="HS2 Studio Cleanup banner" width="700"/>
+</p>
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
+<h1 align="center">HS2 Studio Cleanup</h1>
 
-**[🚀 Download Latest HS2_Studio_Cleanup.exe](https://github.com/NikoCloud/HS2-Studio-Cleanup/raw/master/dist/HS2_Studio_Cleanup.exe)**
+<p align="center">
+  High-performance deduplication &amp; organiser for large Honey Select 2 installations
+</p>
 
-**HS2 Studio Cleanup** is a high-performance deduplication and organization tool designed specifically for large Honey Select 2 installations. It intelligently handles zipmods, character cards, coordinates, and studio scenes to keep your setup clean and optimized.
-
----
-
-## 🌟 Key Features
-
-### 🚀 Performance & Scale
-- **Optimized Scanning**: Handles libraries exceeding 1.5TB and 300K+ files with ease.
-- **Smart Indexing**: SQLite-backed caching for incredibly fast re-scans by only checking modified files.
-- **Multi-Phase Deduplication**: Fast size-grouping → partial hashing → full cryptographic hashing → metadata verification.
-
-### 🍱 Intelligent Organization
-- **3-Mode Protection**:
-  - **Move**: Standard deduplication (moves files to `_Cleanup/Duplicates`).
-  - **Report**: Only flags issues without moving files (audit mode).
-  - **📥 Inbox**: Automatically sorts new files into gendered/category subfolders.
-- **Gender Detection**: Extracts gender markers from filename tags, embedded metadata bytes, and folder context.
-- **Coordinate Support**: Recognizes clothing cards (`.png`) and preserves creator subfolder hierarchies (e.g., `Kenzato/kittylord`).
-- **Misplacement Detection**: Flags files in incorrect directories and routes them to their rightful place.
-
-### 🛡️ Safety & Manual Control
-- **Scene Dependency Awareness**: Warns you if a duplicate mod is referenced by your Studio scenes before you move it.
-- **Interactive Keeper Swap**: Choose exactly which copy you want to keep directly from the GUI.
-- **Non-Destructive Operations**: Every move is logged in a `_manifest.json` for full auditability.
-- **Dry Run Support**: Test your entire cleanup pipeline without touching a single file.
+<p align="center">
+  <a href="https://github.com/NikoCloud/HS2-Studio-Cleanup/releases/latest"><img src="https://img.shields.io/github/v/release/NikoCloud/HS2-Studio-Cleanup?label=Download&style=for-the-badge&color=2ecc71" alt="Download"/></a>
+  <img src="https://img.shields.io/badge/Platform-Windows-informational?style=for-the-badge" alt="Platform"/>
+  <img src="https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge" alt="Python"/>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-green?style=for-the-badge" alt="License"/></a>
+</p>
 
 ---
 
-## 🛠️ Installation
-
-### 🚀 Method 1: Portable EXE (Recommended)
-1. **[Download the Latest Executable](https://github.com/NikoCloud/HS2-Studio-Cleanup/raw/master/dist/HS2_Studio_Cleanup.exe)**.
-2. Place it anywhere on your PC and run it. No installation or Python required!
-
-### 💻 Method 2: From Source (Developers / Advanced)
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/NikoCloud/HS2-Studio-Cleanup.git
-   cd HS2-Studio-Cleanup
-   ```
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. **Run the application**:
-   ```bash
-   python main.py
-   ```
+> **Part of the Persona Workflow toolkit** — see also:
+> | Tool | Purpose |
+> |---|---|
+> | [Persona Asset Forge](https://github.com/NikoCloud/Persona-Asset-Forge) | Background removal & sprite grid slicing |
+> | [Persona Packager Studio](https://github.com/NikoCloud/Persona-Packager-Studio) | Character card editor & .charx packager |
+> | [KenzatoTool](https://github.com/NikoCloud/KenzatoTool) | Bulk card downloader from kenzato.uk |
 
 ---
 
-## 🖥️ Usage
+## Screenshots
 
-1. **Set your HS2 Root**: Point the application to your main Honey Select 2 directory.
-2. **Configure Folder Modes**: Right-click folders in the tree to set them as `Move`, `Report`, or `Inbox`.
-3. **Scan**: Let the engine analyze your library.
-4. **Review**: Check the tabbed results (Duplicates, Older Versions, Misplaced).
-5. **Execute**: Use "Move Selected" to apply the organization rules.
+<p align="center"><em>Screenshots coming soon</em></p>
 
 ---
 
-## ⚖️ License
+## Features
 
-Distributed under the **Apache License 2.0**. See `LICENSE` for more information.
+### Performance & Scale
+- **Handles 1.5TB+ / 300K+ files** with SQLite-backed scan caching — re-scans only modified files
+- **Multi-phase dedup**: size grouping → partial hash → full XXH3 hash → metadata → version analysis
 
-## 🙏 Acknowledgements
-- Powered by `PyQt6` and `xxhash`.
-- Designed for the HS2 community.
+### Intelligent Organisation
+- **3-Mode Folder Protection**
+  - **Move** — deduplicates and moves to `_Cleanup/`
+  - **Report** — audit mode, flags without touching files
+  - **Inbox** — auto-sorts new files into gender/category subfolders
+- **Scene Dependency Awareness** — warns before moving mods referenced by Studio scenes
+- **Misplacement Detection** — routes files to their canonical game folder
+
+### Safety
+- **Non-destructive** — every move is logged in `_manifest.json` with full undo support
+- **Dry Run** — preview the entire cleanup pipeline without touching a file
+- **Interactive Keeper Swap** — choose which duplicate copy to keep via the GUI
+
+---
+
+## Installation
+
+### Portable EXE *(Recommended)*
+1. Go to the **[Latest Release](https://github.com/NikoCloud/HS2-Studio-Cleanup/releases/latest)**
+2. Download `HS2_Studio_Cleanup.exe`
+3. Run directly — no Python or installation required
+
+### Installer
+1. Download `HS2StudioCleanup_Setup.exe` from the **[Latest Release](https://github.com/NikoCloud/HS2-Studio-Cleanup/releases/latest)**
+2. Run the installer — adds a Start Menu entry and optional desktop shortcut
+
+### From Source
+```bash
+git clone https://github.com/NikoCloud/HS2-Studio-Cleanup.git
+cd HS2-Studio-Cleanup
+pip install -r requirements.txt
+python main.py
+```
+
+---
+
+## Usage
+
+1. **Set HS2 Root** — point to your Honey Select 2 directory
+2. **Configure Folder Modes** — right-click folders in the tree to set Move / Report / Inbox
+3. **Scan** — let the engine analyse your library
+4. **Review** — check results across the Duplicates, Older Versions, and Misplaced tabs
+5. **Execute** — click "Move Selected" to apply cleanup
+
+---
+
+## License
+
+Apache 2.0 — see [LICENSE](LICENSE) for full terms.  
+Copyright 2025 NikoCloud
+
+---
+
+*Powered by PyQt6 and xxhash. Designed for the HS2 community.*

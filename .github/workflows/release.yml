@@ -1,0 +1,43 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyinstaller PyQt6 xxhash natsort
+
+      - name: Build portable EXE
+        run: pyinstaller HS2_Studio_Cleanup.spec --noconfirm
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes
+
+      - name: Build installer
+        run: '& "C:\Program Files (x86)\Inno Setup 6\iscc.exe" installer.iss'
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/HS2_Studio_Cleanup.exe
+            dist/HS2StudioCleanup_Setup.exe
+          generate_release_notes: true
