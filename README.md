@@ -35,17 +35,20 @@
 
 ## 🛠️ Installation
 
+### 🚀 Method 1: Portable EXE (Recommended)
+1. **[Download the Latest Executable](https://github.com/NikoCloud/HS2-Studio-Cleanup/raw/master/dist/HS2_Studio_Cleanup.exe)**.
+2. Place it anywhere on your PC and run it. No installation or Python required!
+
+### 💻 Method 2: From Source (Developers / Advanced)
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/NikoCloud/HS2-Studio-Cleanup.git
    cd HS2-Studio-Cleanup
    ```
-
 2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-
 3. **Run the application**:
    ```bash
    python main.py
