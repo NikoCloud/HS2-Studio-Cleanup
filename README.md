@@ -3,6 +3,8 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14+-blue.svg)](https://www.python.org/downloads/)
 
+**[🚀 Download Latest HS2_Studio_Cleanup.exe](https://github.com/NikoCloud/HS2-Studio-Cleanup/raw/master/dist/HS2_Studio_Cleanup.exe)**
+
 **HS2 Studio Cleanup** is a high-performance deduplication and organization tool designed specifically for large Honey Select 2 installations. It intelligently handles zipmods, character cards, coordinates, and studio scenes to keep your setup clean and optimized.
 
 ---

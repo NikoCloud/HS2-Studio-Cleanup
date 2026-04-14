@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 build/
 dist/
+!dist/HS2_Studio_Cleanup.exe
 localpycs/
 *.egg-info/
 .installed.cfg
